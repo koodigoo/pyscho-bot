@@ -328,6 +328,7 @@ bot.action(/^to_tech:(anxiety|anger|apathy)$/, async (ctx) => {
     const block = COPY.states[status];
     if (!block) return;
 
+    await delay(2000);
     return ctx.reply(
       block.technique,
       Markup.inlineKeyboard([Markup.button.callback(BTN.done, "done")])
@@ -342,6 +343,7 @@ bot.action("done", async (ctx) => {
   try {
     ctx.answerCbQuery("Ок").catch(() => {});
     fireAndForget(upsertLead(ctx, { last_step: "frequency" }));
+    await delay(2000);
     return ctx.reply(COPY.afterTechnique, menuFrequencies());
   } catch (e) {
     console.error("[done handler] error:", e?.message || e);
@@ -365,6 +367,7 @@ bot.action(/^freq:(rare|weekly|daily)$/, async (ctx) => {
 
   const offerText = frequency === "rare" ? COPY.offerRare : COPY.offerRegular;
 
+  await delay(2000);
   await ctx
     .reply(offerText, Markup.inlineKeyboard(buttons))
     .catch((e) => console.error("[tg] offer reply failed:", e?.message || e));
