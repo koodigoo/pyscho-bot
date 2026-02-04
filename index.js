@@ -143,6 +143,7 @@ const COPY = {
 };
 
 const BTN = {
+  toTechnique: "Перейти к технике",
   done: "✅ Сделал(а), стало легче",
   book: "🗓 Записаться на встречу с Марией",
 };
@@ -306,15 +307,34 @@ bot.start(async (ctx) => {
     fireAndForget(upsertLead(ctx, { status, last_step: "technique" }));
 
     await delay(2000);
-    await ctx.reply(block.explain);
     await ctx.reply(
-      block.technique,
-      Markup.inlineKeyboard([Markup.button.callback(BTN.done, "done")])
+      block.explain,
+      Markup.inlineKeyboard([
+        Markup.button.callback(BTN.toTechnique, `to_tech:${status}`),
+      ])
     );
   } catch (e) {
     console.error("[state handler] error:", e?.message || e);
     // user-facing fallback
     return ctx.reply("Что-то пошло не так. Попробуйте ещё раз: /start");
+  }
+});
+
+bot.action(/^to_tech:(anxiety|anger|apathy)$/, async (ctx) => {
+  try {
+    ctx.answerCbQuery("Ок").catch(() => {});
+
+    const status = ctx.match[1];
+    const block = COPY.states[status];
+    if (!block) return;
+
+    return ctx.reply(
+      block.technique,
+      Markup.inlineKeyboard([Markup.button.callback(BTN.done, "done")])
+    );
+  } catch (e) {
+    console.error("[to_tech handler] error:", e?.message || e);
+    return ctx.reply("Не получилось показать технику. Давайте заново: /start");
   }
 });
 
